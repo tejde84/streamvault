@@ -2,6 +2,8 @@ import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
+console.log('API Base URL:', API_BASE_URL);
+
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -17,6 +19,24 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+// Add response error interceptor for better debugging
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response) {
+      // Server responded with error status
+      console.error('API Error:', error.response.status, error.response.data);
+    } else if (error.request) {
+      // Request made but no response
+      console.error('No response from server:', error.request);
+    } else {
+      // Error in request setup
+      console.error('Request error:', error.message);
+    }
+    return Promise.reject(error);
+  }
+);
 
 // Authentication endpoints
 export const authAPI = {
